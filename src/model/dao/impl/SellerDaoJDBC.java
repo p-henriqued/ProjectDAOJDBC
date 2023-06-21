@@ -25,16 +25,74 @@ public class SellerDaoJDBC implements SellerDAO {
 
 	@Override
 	public void insert(Seller seller) {
-
+		PreparedStatement ps = null;
+		
+		try {
+			String SqlInsert = "INSERT INTO seller "
+					+ "(Name, Email, BirthDate, BaseSalary, DepartmentId) "
+					+ "VALUES (?, ?, ?, ?, ?)";
+			
+			ps = conn.prepareStatement(SqlInsert);
+			ps.setString(1, seller.getName());
+			ps.setString(2, seller.getEmail());
+			ps.setDate(3, new java.sql.Date(seller.getBirthDate().getTime()) );
+			ps.setDouble(4, seller.getBaseSalary());
+			ps.setInt(5, seller.getDepartment().getId());
+			
+			Integer rowsAffect = ps.executeUpdate();
+			if(rowsAffect > 0) {
+				ResultSet rs = ps.getGeneratedKeys();
+				if(rs.next()) {
+					Integer id = rs.getInt(1);
+					seller.setId(id);
+				}
+				ConnectionDB.closeResultSet(rs);
+			}else {
+				throw new DbException("Unexpected ERROR! [No arrows affect]");
+			}
+			
+		}catch(SQLException e) {
+			throw new DbException(e.getMessage());
+		}
 	}
 
 	@Override
-	public void uptade(Seller seller) {
-
+	public void update(Seller seller) {
+		PreparedStatement ps = null;
+		try {
+			String sqlUpdate = "UPDATE seller SET Name = ?, Email = ?, BirthDate = ?, BaseSalary = ?, DepartmentId = ? "
+							+ "WHERE Id = ?";
+			ps = conn.prepareStatement(sqlUpdate);
+			
+			ps.setString(1, seller.getName());
+			ps.setString(2, seller.getEmail());
+			ps.setDate(3, new java.sql.Date(seller.getBirthDate().getTime()) );
+			ps.setDouble(4, seller.getBaseSalary());
+			ps.setInt(5, seller.getDepartment().getId());
+			ps.setInt(6, seller.getId());
+			
+			ps.execute();
+			
+		}catch(SQLException e) {
+			throw new DbException(e.getMessage());
+		}
 	}
 
 	@Override
 	public void deleteById(Integer id) {
+		PreparedStatement ps = null;
+		try {
+			
+			String sqlDelete = "DELETE FROM seller WHERE id = ?";
+			
+			ps = conn.prepareStatement(sqlDelete);
+			ps.setInt(1, id);
+			ps.execute();
+			
+			
+		}catch(SQLException e) {
+			throw new DbException(e.getMessage());
+		}
 
 	}
 
@@ -114,8 +172,7 @@ public class SellerDaoJDBC implements SellerDAO {
 		
 		try {
 			String sqlShearchAll = "SELECT seller.*,department.Name as DepName  "
-					+ "FROM seller INNER JOIN department ON seller.DepartmentId = department.Id  "
-					+ "ORDER BY Name";
+					+ "FROM seller INNER JOIN department ON seller.DepartmentId = department.Id  ";
 			ps = conn.prepareStatement(sqlShearchAll);
 			rs = ps.executeQuery();
 			

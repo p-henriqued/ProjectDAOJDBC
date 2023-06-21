@@ -7,7 +7,7 @@ import model.entities.Department;
 public interface DepartmentDAO {
 	
 	void insert(Department department);
-	void uptade(Department department);
+	void update(Department department);
 	void deleteById(Integer id);
 	Department findById(Integer id);
 	List<Department> findAll();

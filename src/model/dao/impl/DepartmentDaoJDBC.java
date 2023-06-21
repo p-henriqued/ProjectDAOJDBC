@@ -25,7 +25,7 @@ public class DepartmentDaoJDBC implements DepartmentDAO {
 	}
 
 	@Override
-	public void uptade(Department department) {
+	public void update(Department department) {
 
 	}
 
